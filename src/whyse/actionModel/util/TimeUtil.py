@@ -23,6 +23,7 @@ class TimeUtil(object):
         """
         print(datetime.date.today()) #获取当前时间y-m-d
         
+        
     @staticmethod
     def  getDateBOrA(d):
         """
@@ -35,4 +36,6 @@ class TimeUtil(object):
             return str(now+datetime.timedelta(d))
         
 pass
+
+# print(TimeUtil.getDateBOrA(0))
 

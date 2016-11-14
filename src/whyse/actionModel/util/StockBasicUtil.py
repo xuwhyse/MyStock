@@ -17,15 +17,28 @@ class StockBasicUtil(object):
         '''
         
     @staticmethod
-    def  getMyValuableStocks():
+    def  getMyValuableStocks(num):
         """
         从所有股票中获取我认为值得投资的股票，比如不要st的
         """
-        count = 2800
         df = ts.get_stock_basics()
-        df = df.sort("totalAssets").head(count)
+        df = df.sort("totalAssets").head(num)
         df = df.ix[:,['name']]
 #         print(df)
+        
+        for row in df.iterrows():
+#             row = row[1]  #这个调用小市值的时候需要这一步
+            code = str(row[0])
+            name = str(row[1])
+            flag = 0
+            try:
+                flag = StockBasicUtil.isStockLineFine(code)
+            except Exception:
+    #             print(code+"有问题")
+                flag = 0
+            
+            if (flag==1):
+                print(name+'  '+code+"  可以买入")
         return df;
     
     @staticmethod
@@ -37,11 +50,58 @@ class StockBasicUtil(object):
         前十大股东占股本50%以上，越大越好。如果能有在70%以上的，而股价没怎么涨
         """
         df = ts.get_sme_classified()
-#         df = df.sort("totalAssets").head(count)
-#         df = df.ix[:,['name']]
-#         print(df)
+        
+        for row in df.iterrows():
+            row = row[1]  #这个调用小市值的时候需要这一步
+            code = str(row[0])
+            name = str(row[1])
+            flag = 0
+            try:
+                flag = StockBasicUtil.isStockLineFine(code)
+            except Exception:
+#                 print(err)
+                flag = 0
+            
+            if (flag==1):
+                print(name+'  '+code+"  可以买入")
+        return df;
+    
+    @staticmethod
+    def  getGroHighStocks(num):
+        """
+        获取成长率高的股票，并且均线选股
+        """
+        df = ts.get_growth_data(2016,3).head(num)
+        allSocketsBase = ts.get_stock_basics()
+        print('=======获取数据完毕，现在解析============')
+        count = 0
+        for row in df.iterrows():
+            row = row[1]  #这个调用小市值的时候需要这一步
+            code = str(row[0])
+            name = str(row[1])
+            nprg = row[3]
+            count = count+1
+            if(nprg<0):
+                print('成长率即将为负数，运行了 ：'+str(count))
+                return
+            
+            flag = 0
+            try:
+                flag = StockBasicUtil.isStockLineFine(code)
+            except Exception :
+                flag = 0
+            
+            if (flag==1):
+                item = allSocketsBase.loc[code]
+                totals = item['totals']  #总股本
+                outstanding =  item['outstanding']   #流通股本
+                if(totals<40000):    #筛选总股本小宇4亿
+                    print(name+'  '+code+"  可以买入")
         return df;
         
+        
+    #======================================================================
+    #看来量比也要逐渐增大才能入围
     @staticmethod
     def isStockLineFine(sym):
         """
@@ -54,7 +114,10 @@ class StockBasicUtil(object):
         sDate = TimeUtil.getDateBOrA(-10);
         temp = ts.get_hist_data(sym, start=sDate,ktype='D').head(4)
         # ix是最强的操作frame 能任意切割横向或者纵向，用起来奇怪点
-        temp = temp.ix[:,['ma5','ma10','ma20','turnover']]
+        temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
+        
+        lb = temp.ix[0,'volume']/temp.ix[0,'v_ma10']  #当日量除以十日均量 >1.3比较好
+        zf =  temp.ix[0,'p_change']     #涨幅这个参数需要
         
         by1 = temp.ix[0,'ma10']-temp.ix[0,'ma20']
         by2 = temp.ix[1,'ma10']-temp.ix[1,'ma20']
@@ -64,7 +127,7 @@ class StockBasicUtil(object):
         sl1 = temp.ix[0,'ma10']-temp.ix[0,'ma5']
         sl2 = temp.ix[1,'ma10']-temp.ix[1,'ma5']
         sl3 = temp.ix[2,'ma10']-temp.ix[2,'ma5']
-        sl4 = temp.ix[3,'ma10']-temp.ix[3,'ma5']
+#         sl4 = temp.ix[3,'ma10']-temp.ix[3,'ma5']
         
 #         print(temp)
 #         
@@ -80,8 +143,9 @@ class StockBasicUtil(object):
         
         ma20CK = temp.ix[0,'ma20']/250
         ma21CK = ma20CK*1.2
-#         34为负，1为正，或者1的数值很接近0就是买入点  sl1负代表5日均线上穿10日
-        if(by3<0 and by2<0 and (by1>0 or abs(by1)<ma20CK) and (abs(sl1)<ma21CK or sl1<0)):
+#         34为负，1为正，或者1的数值很接近0就是买入点  sl1负代表5日均线上穿10日  and zf<4
+        if(by4 <0 and by3<0 and by2<0 and (by1>0 or abs(by1)<ma20CK) 
+           and (abs(sl1)<ma21CK or sl1<0)  and lb>1.2 ):
 #             print('可以买入')
             return 1
         
@@ -99,6 +163,8 @@ class StockBasicUtil(object):
 
 # aa = StockBasicUtil.getSmallValuableStocks()
 # print(aa)
+
+# StockBasicUtil.getGroHighStocks(1500)
 
 
 

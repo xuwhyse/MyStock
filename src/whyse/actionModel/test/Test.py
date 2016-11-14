@@ -4,12 +4,19 @@ Created on 2016年11月10日
 @author: whyse
 '''
 import tushare as ts
+import pandas as pd
 
-temp = ts.get_hist_data('000613', start='2016-10-21',ktype='D').head(5)
-# ix是最强的操作frame 能任意切割横向或者纵向，用起来奇怪点
-temp = temp.ix[:,['ma5','ma10','ma20','turnover']]
-print(temp.ix[0,'ma10']-temp.ix[0,'ma20'])
+# df = ts.get_sina_dd('300416', date='2016-11-11', vol=100) 
+# print(df)
 
-for row in temp.iterrows():
-    aa = row[1]['ma10'] - row[1]['ma20']
-    print(aa)
+# allSockets = ts.get_stock_basics()
+# df.to_csv('G:/lianghua/scBasics.csv',index_label='code')
+# # df = ts.get_growth_data(2016,3).sort('nprg').head(100)
+# df = pd.read_csv('G:\lianghua/scBasics.csv',encoding='gbk')
+# index = df['code']
+# columns=['code','name']
+# ndf = df.reindex( index=index,columns=columns)
+# item = df.loc['603977']
+allSockets = ts.get_stock_basics()
+item = allSockets.loc['300416']
+print(item['totals'])
