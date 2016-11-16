@@ -5,6 +5,12 @@ Created on 2016年11月15日
 '''
 import tushare as ts
 if __name__ == '__main__':
+    
+    guba = ts.guba_sina()
+    print(guba)
+    
+    print("===========================================================")
+    
     news = ts.get_latest_news(top=20)
     for item in news.iterrows():
         temp = item[1]

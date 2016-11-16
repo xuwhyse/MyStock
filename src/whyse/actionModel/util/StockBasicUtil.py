@@ -5,6 +5,7 @@ Created on 2016年11月7日
 '''
 import tushare as ts
 from whyse.actionModel.util.TimeUtil import TimeUtil
+from whyse.actionModel.util.WriteAndRead import WriteAndRead
 
 class StockBasicUtil(object):
     '''
@@ -21,7 +22,7 @@ class StockBasicUtil(object):
         """
         从所有股票中获取我认为值得投资的股票，比如不要st的
         """
-        df = ts.get_stock_basics()
+        df = WriteAndRead.readToFile('G:\lianghua/bsStocksInfo')
         df = df.sort("totalAssets").head(num)
         df = df.ix[:,['name']]
 #         print(df)
@@ -71,8 +72,8 @@ class StockBasicUtil(object):
         """
         获取成长率高的股票，并且均线选股
         """
-        df = ts.get_growth_data(2016,3).head(num)
-        allSocketsBase = ts.get_stock_basics()
+        df = WriteAndRead.readToFile('G:\lianghua/growthData')
+        allSocketsBase =WriteAndRead.readToFile('G:\lianghua/bsStocksInfo')
         print('=======获取数据完毕，现在解析============')
         count = 0
         for row in df.iterrows():
@@ -95,6 +96,7 @@ class StockBasicUtil(object):
                 item = allSocketsBase.loc[code]
                 totals = item['totals']  #总股本
                 outstanding =  item['outstanding']   #流通股本
+                # and totals/outstanding >=2   ---股票多就用这个筛选-------
                 if(totals<40000):    #筛选总股本小宇4亿
                     print(name+'  '+code+"  可以买入")
         return df;

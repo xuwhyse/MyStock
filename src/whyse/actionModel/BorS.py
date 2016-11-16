@@ -25,7 +25,4 @@ if __name__ == '__main__':
         zz = zz.ix[:,'price_change'].sum()
         print("中证500 累计"+str(i)+"天涨幅："+str(zz))
     
-    temp = ts.guba_sina()
-    print(temp)
-    
     pass
