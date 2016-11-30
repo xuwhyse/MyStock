@@ -11,11 +11,15 @@ from whyse.actionModel.util.WriteAndRead import WriteAndRead
 # print(df)
 path = 'G:\lianghua/bsStocksInfo'
 
-allSockets = ts.get_stock_basics()
-WriteAndRead.writeToFile(path, allSockets)
-
-temp = WriteAndRead.readToFile(path)
+temp = ts.get_today_all()
 print(temp)
+
+
+# allSockets = ts.get_stock_basics()
+# WriteAndRead.writeToFile(path, allSockets)
+# 
+# temp = WriteAndRead.readToFile(path)
+# print(temp)
 # allSockets.to_json('G:\lianghua/scBasics.json',orient='records')
 # df.to_csv('G:/lianghua/scBasics.csv',index_label='code')
 # # df = ts.get_growth_data(2016,3).sort('nprg').head(100)

@@ -22,7 +22,7 @@ class StockBasicUtil(object):
         """
         从所有股票中获取我认为值得投资的股票，比如不要st的
         """
-        df = WriteAndRead.readToFile('G:\lianghua/bsStocksInfo')
+        df = WriteAndRead.readToFile('F:\lianghua/bsStocksInfo')
         df = df.sort("totalAssets").head(num)
         df = df.ix[:,['name']]
 #         print(df)
@@ -72,8 +72,8 @@ class StockBasicUtil(object):
         """
         获取成长率高的股票，并且均线选股
         """
-        df = WriteAndRead.readToFile('G:\lianghua/growthData')
-        allSocketsBase =WriteAndRead.readToFile('G:\lianghua/bsStocksInfo')
+        df = WriteAndRead.readToFile('F:\lianghua/growthData')
+        allSocketsBase =WriteAndRead.readToFile('F:\lianghua/bsStocksInfo')
         print('=======获取数据完毕，现在解析============')
         count = 0
         for row in df.iterrows():
@@ -82,9 +82,9 @@ class StockBasicUtil(object):
             name = str(row[1])
             nprg = row[3]
             count = count+1
-            if(nprg<0):
-                print('成长率即将为负数，运行了 ：'+str(count))
-                return
+#             if(nprg<0):
+#                 print('成长率即将为负数，运行了 ：'+str(count))
+#                 return
             
             flag = 0
             try:

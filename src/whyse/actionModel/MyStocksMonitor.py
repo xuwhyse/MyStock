@@ -6,7 +6,7 @@ Created on 2016年11月11日
 from whyse.actionModel.util import StockBasicUtil
 
 if __name__ == '__main__':
-    listCode = ['300416','300231']  #这里面是需要监控的股票池
+    listCode = ['300416','300250']  #这里面是需要监控的股票池
     for code in listCode:
         flag = 0
         try:

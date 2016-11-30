@@ -11,7 +11,7 @@ if __name__ == '__main__':
     sDate = TimeUtil.getDateBOrA(-30);
     eDate = TimeUtil.getDateBOrA(0);
     recentDays = 20;
-    array = [recentDays-2,recentDays]
+    array = [recentDays]
     
     for i in array :
          
@@ -24,5 +24,15 @@ if __name__ == '__main__':
         zz = zz.head(i)
         zz = zz.ix[:,'price_change'].sum()
         print("中证500 累计"+str(i)+"天涨幅："+str(zz))
+        
+        zxb = ts.get_hist_data('zxb')#获取中小板指数k线数据
+        zxb = zxb.head(i)
+        zxb = zxb.ix[:,'price_change'].sum()
+        print("中小板 累计"+str(i)+"天涨幅："+str(zxb))
+        
+        cyb = ts.get_hist_data('cyb')#获取创业板指数k线数据
+        cyb = cyb.head(i)
+        cyb = cyb.ix[:,'price_change'].sum()
+        print("创业板 累计"+str(i)+"天涨幅："+str(cyb))
     
     pass

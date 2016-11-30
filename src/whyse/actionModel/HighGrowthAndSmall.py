@@ -11,6 +11,6 @@ if __name__ == '__main__':
     '''
 #     temp = StockBasicUtil.StockBasicUtil.getMyValuableStocks();
 #     temp = StockBasicUtil.StockBasicUtil.getSmallValuableStocks();
-    temp = StockBasicUtil.StockBasicUtil.getGroHighStocks(1000);
+    temp = StockBasicUtil.StockBasicUtil.getGroHighStocks(2000);
         
     pass
