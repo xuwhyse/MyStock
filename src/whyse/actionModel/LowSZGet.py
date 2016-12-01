@@ -17,7 +17,7 @@ if __name__ == '__main__':
     growthData = WriteAndRead.readToFile('F:\lianghua/growthData')
     growthData = growthData.set_index('code')
 
-    bsStocksInfo = bsStocksInfo.sort("totals").head(2000)
+    bsStocksInfo = bsStocksInfo.sort("totals").head(2500);
     
     for row in bsStocksInfo.iterrows():
         code = str(row[0])
@@ -31,7 +31,7 @@ if __name__ == '__main__':
                 trade = item['trade']  #现价
                 ldzj = outstanding*trade #流动资金
                 zzj = totals*trade  #总资金  50亿以内
-                if(zzj<50 and zzj!=0):
+                if((zzj<80 or ldzj<40)and zzj!=0):
                     flag = StockBasicUtil.StockBasicUtil.isStockLineUp(code)
                     if(flag==1):
 #                         print(code+" "+name+"  "+str(ldzj)+"  "+str(zzj))
@@ -41,12 +41,7 @@ if __name__ == '__main__':
                         if(nprg>0):
                             print(code+" "+name+"  "+str(ldzj)+"  "+str(zzj))
                         #===================================
-            except Exception:
+            except Exception as err:
                 ()
-#     stocksTodayData = stocksTodayData.set_index('code')
-#     print(stocksTodayData)
-#     item = stocksTodayData.loc['603999']
-#     trade = item['trade']  #现价
-#     print(trade)
     
     pass
