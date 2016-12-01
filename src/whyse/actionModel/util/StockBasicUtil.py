@@ -82,9 +82,9 @@ class StockBasicUtil(object):
             name = str(row[1])
             nprg = row[3]
             count = count+1
-#             if(nprg<0):
-#                 print('成长率即将为负数，运行了 ：'+str(count))
-#                 return
+            if(nprg<0):
+                print('成长率即将为负数，运行了 ：'+str(count))
+                return
             
             flag = 0
             try:
@@ -97,7 +97,7 @@ class StockBasicUtil(object):
                 totals = item['totals']  #总股本
                 outstanding =  item['outstanding']   #流通股本
                 # and totals/outstanding >=2   ---股票多就用这个筛选-------
-                if(totals<40000):    #筛选总股本小宇4亿
+                if(totals<6):    #筛选总股本小宇4亿
                     print(name+'  '+code+"  可以买入")
         return df;
         
@@ -145,15 +145,61 @@ class StockBasicUtil(object):
         
         ma20CK = temp.ix[0,'ma20']/250
         ma21CK = ma20CK*1.2
-#         34为负，1为正，或者1的数值很接近0就是买入点  sl1负代表5日均线上穿10日  and zf<4
+#         34为负，1为正，或者1的数值很接近0就是买入点  sl1负代表5日均线上穿10日  and zf<4  and lb>1.2 
         if(by4 <0 and by3<0 and by2<0 and (by1>0 or abs(by1)<ma20CK) 
-           and (abs(sl1)<ma21CK or sl1<0)  and lb>1.2 ):
+           and (abs(sl1)<ma21CK or sl1<0)  ):
 #             print('可以买入')
             return 1
         
         if(sl3<0 and sl2<0 and (sl1>0 or abs(sl1)<ma21CK)):
 #             print('可以警告！！')
             return -1
+            
+        return 0;
+    
+    
+    @staticmethod
+    def isStockLineUp(sym):
+        """
+        筛选出当下处于上升趋势的股票
+        5>10>20
+        往后数两个月内取样的价格波动不大，再去除最近一周的20日均线的10%内
+        """
+        sDate = TimeUtil.getDateBOrA(-4);
+        temp = ts.get_hist_data(sym, start=sDate,ktype='D').head(1)
+        # ix是最强的操作frame 能任意切割横向或者纵向，用起来奇怪点
+        temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
+        
+        lb = temp.ix[0,'volume']/temp.ix[0,'v_ma10']  #当日量除以十日均量 >1.3比较好
+        zf =  temp.ix[0,'p_change']     #涨幅这个参数需要
+        
+        by1 = temp.ix[0,'ma10']-temp.ix[0,'ma20']
+        priceNow = temp.ix[0,'ma5']
+        sl1 = temp.ix[0,'ma10']-temp.ix[0,'ma5']
+        flag = 0;
+        if(by1>0 and sl1<0):
+            flag =  1;
+        if(flag==0):
+            return 0;
+        
+        sDate = TimeUtil.getDateBOrA(-36);
+        eDate = TimeUtil.getDateBOrA(-32);
+        temp = ts.get_hist_data(sym, start=sDate,end=eDate,ktype='D').head(1)
+        temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
+        price1 = temp.ix[0,'ma5']
+        priceCK = temp.ix[0,'ma20']*0.1
+        
+        if(abs(price1-priceNow)>priceCK):
+            return 0;
+        
+        sDate = TimeUtil.getDateBOrA(-78);
+        eDate = TimeUtil.getDateBOrA(-75);
+        temp = ts.get_hist_data(sym, start=sDate,end=eDate,ktype='D').head(1)
+        temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
+        price2 = temp.ix[0,'ma5']
+        
+        if(abs(price1-price2)<priceCK  and abs(priceNow-price2)<priceCK*1.2):
+            return 1;
             
         return 0;
     pass

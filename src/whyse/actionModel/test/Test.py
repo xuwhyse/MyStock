@@ -9,10 +9,16 @@ from whyse.actionModel.util.WriteAndRead import WriteAndRead
 
 # df = ts.get_sina_dd('300416', date='2016-11-11', vol=100) 
 # print(df)
-path = 'G:\lianghua/bsStocksInfo'
 
-temp = ts.get_today_all()
-print(temp)
+#pip install tushare --upgrade  升级版本
+print(ts.__version__)
+
+# temp = ts.forecast_data(2016,4)
+# print(temp)
+
+# path = 'G:\lianghua/bsStocksInfo'
+# temp = ts.get_today_all()
+# print(temp)
 
 
 # allSockets = ts.get_stock_basics()
