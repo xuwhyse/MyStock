@@ -32,6 +32,5 @@ if __name__ == '__main__':
 #     temp = WriteAndRead.readToFile(path)
 #     print(temp)
 
-
     print("运行完毕！！！")
     pass

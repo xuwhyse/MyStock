@@ -113,7 +113,7 @@ class StockBasicUtil(object):
         策略是十日均线上穿20日。  5日均线下传10日
         注意，如果监控已经买入的股票，这个函数每天要跑
         """
-        sDate = TimeUtil.getDateBOrA(-10);
+        sDate = TimeUtil.getDateBOrA(-8);
         temp = ts.get_hist_data(sym, start=sDate,ktype='D').head(4)
         # ix是最强的操作frame 能任意切割横向或者纵向，用起来奇怪点
         temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
