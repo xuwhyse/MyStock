@@ -31,7 +31,7 @@ if __name__ == '__main__':
                 trade = item['trade']  #现价
                 ldzj = outstanding*trade #流动资金
                 zzj = totals*trade  #总资金  50亿以内
-                if((zzj<80 or ldzj<40)and zzj!=0):
+                if((zzj<60 or ldzj<30)and zzj!=0):
                     flag = StockBasicUtil.StockBasicUtil.isStockLineUp(code)
                     if(flag==1):
 #                         print(code+" "+name+"  "+str(ldzj)+"  "+str(zzj))
