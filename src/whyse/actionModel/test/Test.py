@@ -13,6 +13,10 @@ from whyse.actionModel.util.WriteAndRead import WriteAndRead
 #pip install tushare --upgrade  升级版本
 print(ts.__version__)
 
+
+# temp = ts.get_k_data(code='300250')
+# print(temp)
+
 # temp = ts.forecast_data(2016,4)
 # print(temp)
 
