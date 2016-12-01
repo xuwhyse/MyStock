@@ -87,18 +87,20 @@ class StockBasicUtil(object):
                 return
             
             flag = 0
-            try:
-                flag = StockBasicUtil.isStockLineFine(code)
-            except Exception :
-                flag = 0
-            
+            item = allSocketsBase.loc[code]
+            totals = item['totals']  #总股本
+            outstanding =  item['outstanding']   #流通股本
+            # and totals/outstanding >=2   ---股票多就用这个筛选-------
+            if(totals<5 or outstanding<3):    #筛选总股本小宇4亿
+                flag=1
             if (flag==1):
-                item = allSocketsBase.loc[code]
-                totals = item['totals']  #总股本
-                outstanding =  item['outstanding']   #流通股本
-                # and totals/outstanding >=2   ---股票多就用这个筛选-------
-                if(totals<6):    #筛选总股本小宇4亿
+                try:
+                    flag = StockBasicUtil.isStockLineFine(code)
+                except Exception :
+                    flag = 0
+                if (flag==1):
                     print(name+'  '+code+"  可以买入")
+           
         return df;
         
         
