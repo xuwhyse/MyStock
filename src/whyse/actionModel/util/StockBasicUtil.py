@@ -43,37 +43,15 @@ class StockBasicUtil(object):
         return df;
     
     @staticmethod
-    def  getSmallValuableStocks():
-        """
-        选取中小股票样本
-        总股本不大于3亿，流通股本不大于2亿。总股本在1.5亿到2亿之间最佳
-        总市值在30亿左右，流通市值在20亿左右
-        前十大股东占股本50%以上，越大越好。如果能有在70%以上的，而股价没怎么涨
-        """
-        df = ts.get_sme_classified()
-        
-        for row in df.iterrows():
-            row = row[1]  #这个调用小市值的时候需要这一步
-            code = str(row[0])
-            name = str(row[1])
-            flag = 0
-            try:
-                flag = StockBasicUtil.isStockLineFine(code)
-            except Exception:
-#                 print(err)
-                flag = 0
-            
-            if (flag==1):
-                print(name+'  '+code+"  可以买入")
-        return df;
-    
-    @staticmethod
     def  getGroHighStocks(num):
         """
         获取成长率高的股票，并且均线选股
         """
         df = WriteAndRead.readToFile('F:\lianghua/growthData')
         allSocketsBase =WriteAndRead.readToFile('F:\lianghua/bsStocksInfo')
+        path = 'F:\lianghua/stocksTodayData'
+        stocksTodayData = WriteAndRead.readToFile(path)
+        stocksTodayData = stocksTodayData.set_index('code')
         print('=======获取数据完毕，现在解析============')
         count = 0
         for row in df.iterrows():
@@ -86,20 +64,32 @@ class StockBasicUtil(object):
                 print('成长率即将为负数，运行了 ：'+str(count))
                 return
             
-            flag = 0
-            item = allSocketsBase.loc[code]
-            totals = item['totals']  #总股本
-            outstanding =  item['outstanding']   #流通股本
-            # and totals/outstanding >=2   ---股票多就用这个筛选-------
-            if(totals<5 or outstanding<3):    #筛选总股本小宇4亿
-                flag=1
+            try:
+                flag = 0
+                item = allSocketsBase.loc[code]
+                totals = item['totals']  #总股本
+                outstanding =  item['outstanding']   #流通股本
+                
+                item = stocksTodayData.loc[code]
+                trade = item['trade']  #现价
+                ldzj = outstanding*trade #流动资金
+                zzj = totals*trade  #总资金  50亿以内
+                
+                if(zzj<80 or ldzj<40):    #筛选总股本小宇4亿
+                    flag=1
+            except Exception :
+                flag = 0
+                
             if (flag==1):
                 try:
                     flag = StockBasicUtil.isStockLineFine(code)
                 except Exception :
                     flag = 0
                 if (flag==1):
-                    print(name+'  '+code+"  可以买入")
+                    print(name+'  '+code+"  可以买关注")
+                    flag = StockBasicUtil.isStockLinePW(code)
+                    if (flag==1):
+                        print(name+'  '+code+" 平稳！！ 可以买入")
            
         return df;
         
@@ -107,8 +97,9 @@ class StockBasicUtil(object):
     #======================================================================
     #看来量比也要逐渐增大才能入围
     @staticmethod
-    def isStockLineFine(sym):
+    def isStockLineFine(sym,lbz=1.1):
         """
+        lbz  当日量除以十日均量
         适合筛选出刚刚金叉的股票，筛选不出强势的股票
         1: 买入  0不是  -1 卖出
         判断这只股票是不是可以买入，或者应该卖出了。
@@ -133,23 +124,11 @@ class StockBasicUtil(object):
         sl3 = temp.ix[2,'ma10']-temp.ix[2,'ma5']
 #         sl4 = temp.ix[3,'ma10']-temp.ix[3,'ma5']
         
-#         print(temp)
-#         
-#         print('by1：'+str(by1))
-#         print('by2：'+str(by2))
-#         print('by3：'+str(by3))
-#         print('by4：'+str(by4))
-#          
-#         print('sl1：'+str(sl1))
-#         print('sl2：'+str(sl2))
-#         print('sl3：'+str(sl3))
-#         print('sl4：'+str(sl4))
-        
         ma20CK = temp.ix[0,'ma20']/250
         ma21CK = ma20CK*1.2
 #         34为负，1为正，或者1的数值很接近0就是买入点  sl1负代表5日均线上穿10日  and zf<4  and lb>1.2 
         if(by4 <0 and by3<0 and by2<0 and (by1>0 or abs(by1)<ma20CK) 
-           and (abs(sl1)<ma21CK or sl1<0)  ):
+           and (abs(sl1)<ma21CK or sl1<0)  and lb>lbz ):
 #             print('可以买入')
             return 1
         
@@ -176,13 +155,28 @@ class StockBasicUtil(object):
         zf =  temp.ix[0,'p_change']     #涨幅这个参数需要
         
         by1 = temp.ix[0,'ma10']-temp.ix[0,'ma20']
-        priceNow = temp.ix[0,'ma5']
         sl1 = temp.ix[0,'ma10']-temp.ix[0,'ma5']
         flag = 0;
         if(by1>0 and sl1<0):
             flag =  1;
         if(flag==0):
             return 0;
+        
+        return StockBasicUtil.isStockLinePW(sym)
+        return 0;
+    
+    
+    @staticmethod
+    def isStockLinePW(sym):
+        """
+        往后数两个月内取样的价格波动不大，再去除最近一周的20日均线的10%内
+        返回1就是该线是平整，突破形态的
+        """
+        sDate = TimeUtil.getDateBOrA(-8);
+        eDate = TimeUtil.getDateBOrA(-4);
+        temp = ts.get_hist_data(sym, start=sDate,end=eDate,ktype='D').head(1)
+        temp = temp.ix[:,['volume' ,'p_change' ,'ma5','ma10','ma20','turnover','v_ma10']]
+        priceNow = temp.ix[0,'ma5']
         
         sDate = TimeUtil.getDateBOrA(-36);
         eDate = TimeUtil.getDateBOrA(-32);
@@ -204,6 +198,7 @@ class StockBasicUtil(object):
             return 1;
             
         return 0;
+    
     pass
 
 # 对单只股票策略优化的调整
